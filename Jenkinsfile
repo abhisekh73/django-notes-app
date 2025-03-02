@@ -1,43 +1,44 @@
-@Library("Shared") _
-pipeline{
-    
-    agent { label "vinod"}
-    
-    stages{
-        
-        stage("Hello"){
-            steps{
-                script{
+@Library('shared library') _
+pipeline {
+    agent { label "vinod" }
+
+    stages {
+        stage("hello") {
+            steps {
+                script {
                     hello()
                 }
             }
         }
-        stage("Code"){
-            steps{
-               script{
-                clone("https://github.com/LondheShubham153/django-notes-app.git","main")
-               }
-                
-            }
-        }
-        stage("Build"){
-            steps{
-                script{
-                docker_build("notes-app","latest","trainwithshubham")
+        stage("code") {
+            steps {
+                script {
+                    clone("https://github.com/abhisekh73/django-notes-app.git", "main")
                 }
             }
         }
-        stage("Push to DockerHub"){
-            steps{
-                script{
-                    docker_push("notes-app","latest","trainwithshubham")
+        stage("Build") {
+            steps {
+                script {
+                    docker_build("notes-app","5","abhisekh73")
+                    //  sh "docker build -t ${dockerhubuser}/${ImageName}:${ImageTag} ."
                 }
             }
         }
-        stage("Deploy"){
-            steps{
-                echo "This is deploying the code"
-                sh "docker compose down && docker compose up -d"
+        stage("push to docker hub") {
+            steps {
+                script {
+                    // def docker_push = load "${libraryResource 'docker_push.groovy'}"
+                    img_push("notes-app","5")
+                    // dockerPush(image: "notes-app", tag: "latest", registry: "abhisekh73")
+                }
+            }
+        }  
+
+        stage("deploy") {  
+            steps {
+                echo "deploying the code"
+                sh "docker compose up -d"
             }
         }
     }
